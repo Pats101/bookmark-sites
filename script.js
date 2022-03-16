@@ -7,7 +7,7 @@ const websiteUrlEl = document.getElementById('website-url');
 const bookmarksContainer = document.getElementById('bookmarks-container');
 
 // Array of Bookmarks
-let bookmarks = [];
+let bookmarks = {};
 
 // Show Modal, Focus on Input
 function showModal() {
@@ -42,9 +42,9 @@ function buildBookmarks() {
     // Remove all Bookmark elements
     bookmarksContainer.textContent = '';
     // Build items
-    bookmarks.forEach((bookmark) => {
+    Object.keys(bookmarks).forEach((id) => {
         // Destructuring
-        const { name, url } = bookmark;
+        const { name, url } = bookmarks[id];
         // Item
         const item = document.createElement('div');
         item.classList.add('item');
@@ -80,24 +80,22 @@ function fetchBookmarks() {
         bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
     } else {
         // Create bookmarks array in localStorage
-        bookmarks = [
-            {
-                name: 'Ikamva',
-                url: 'https://ikamva.uwc.ac.za/portal',
-            },
-        ];
+        const id = `https://ikamva.uwc.ac.za/portal`
+        bookmarks[id] = {
+            name: 'Ikamva',
+            url: 'https://ikamva.uwc.ac.za/portal',
+        }
         localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     }
     buildBookmarks();
 }
 
 // Delete Bookmark
-function deleteBookmark(url) {
-    bookmarks.forEach((bookmark, i) => {
-        if(bookmark.url === url) {
-            bookmarks.splice(i, 1);
-        }
-    });
+function deleteBookmark(id) {
+
+    if(bookmarks[id]) {
+        delete bookmarks[id]
+    }
     // Update bookmarks array in localStorage, re-populate DOM
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     fetchBookmarks();
@@ -116,11 +114,12 @@ function storeBookmark(e) {
         return false;
     }
 
+    // Set Bookmark object, set to array
     const bookmark = {
         name: nameValue,
         url: urlValue,
     };
-    bookmarks.push(bookmark);
+    bookmarks[urlValue] = bookmark;
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     fetchBookmarks();
     bookmarkForm.reset();
